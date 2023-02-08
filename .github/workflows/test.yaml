@@ -12,4 +12,4 @@ jobs:
       - name: Send data to OTLP backend
         uses: codeboten/github-action-to-otlp@v1
         with:
-          endpoint: ${{ vars.OTEL_COLL_END_POINT }}
+          endpoint: ${{ vars.OTEL_COLL_HTTP_END_POINT }}
