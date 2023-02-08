@@ -12,5 +12,4 @@ jobs:
       - name: Send data to OTLP backend
         uses: codeboten/github-action-to-otlp@v1
         with:
-          endpoint: "ingest.lightstep.com:443"
-          headers: "lightstep-access-token=${{ secrets.ACCESS_TOKEN }}"
+          endpoint: ${{ vars.OTEL_COLL_END_POINT }}
