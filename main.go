@@ -121,6 +121,18 @@ func parseConfig() (actionConfig, error) {
 		return actionConfig{}, errors.New("invalid endpoint")
 	}
 
+	insecure := false
+	tlsEnables, ok := os.LookupEnv("OTEL_EXPORTER_TLS_DISABLED")
+	if !ok {
+		insecure = false
+	} else {
+		boolValue, err := strconv.ParseBool(tlsEnables)
+		if err != nil {
+			return actionConfig{}, errors.New("variable error: OTEL_EXPORTER_TLS_DISABLED")
+		}
+		insecure = boolValue
+	}
+
 	headers := stringToHeader(os.Getenv("OTEL_EXPORTER_OTLP_HEADERS"))
 
 	githubRepository, ok := os.LookupEnv("GITHUB_REPOSITORY")
@@ -152,7 +164,6 @@ func parseConfig() (actionConfig, error) {
 		resource.WithAttributes(attributes...),
 	)
 
-	insecure := false
 	conf := actionConfig{
 		workflow:         workflowName,
 		githubRepository: githubRepository,
@@ -161,7 +172,7 @@ func parseConfig() (actionConfig, error) {
 		runID:            runID,
 		pipelineConfig: pipelines.PipelineConfig{
 			Endpoint:    endpoint,
-			Insecure:    insecure, // TODO: provide config for this
+			Insecure:    insecure,
 			Headers:     headers,
 			Propagators: []string{"tracecontext"}, // TODO: provide config for this
 			Resource:    r,
