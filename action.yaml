@@ -8,7 +8,10 @@ inputs:
     description: "Headers to configure gRPC metadata"
     required: false
   repo-token:
-    description: 'The GITHUB_TOKEN secret'
+    description: "The GITHUB_TOKEN secret"
+    required: false
+  tls_disabled:
+    description: "Disable TLS validation"
     required: false
 runs:
   using: "docker"
@@ -16,4 +19,5 @@ runs:
   env:
     OTEL_EXPORTER_OTLP_ENDPOINT: ${{ inputs.endpoint }}
     OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.headers }}
+    OTEL_EXPORTER_TLS_DISABLED: ${{ inputs.tls_disabled }}
     GITHUB_TOKEN: ${{ inputs.repo-token }}
