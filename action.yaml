@@ -1,4 +1,4 @@
-name: "Github Action to OTLP"
+name: "Github Action to OTLP noTls"
 description: "Record job information as trace and transmit via OTLP"
 inputs:
   endpoint:
