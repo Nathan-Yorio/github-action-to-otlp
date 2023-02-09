@@ -13,4 +13,5 @@ jobs:
         uses: linchar/github-action-to-otlp@v1.1.1
         with:
           endpoint: ${{ vars.OTEL_COLL_GRPC_END_POINT }}
+          repo-token: ${{ secrets.REPO_TOKEN }}
           tls_disabled: true
