@@ -12,11 +12,10 @@ import (
 
 	"github.com/google/go-github/v39/github"
 	"github.com/lightstep/otel-launcher-go/pipelines"
-	"go.opentelemetry.io/collector/translator/conventions"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/oauth2"
 )
@@ -156,7 +155,7 @@ func parseConfig() (actionConfig, error) {
 	}
 
 	attributes := []attribute.KeyValue{
-		attribute.String(conventions.AttributeServiceName, githubRepository),
+		attribute.String(string(semconv.ServiceNameKey), githubRepository),
 	}
 
 	r, _ := resource.New(context.Background(),
@@ -191,7 +190,6 @@ func main() {
 
 	pipelineShutdown, err := pipelines.NewTracePipeline(conf.pipelineConfig)
 	defer pipelineShutdown()
-
 	if err != nil {
 		log.Printf("%v", err)
 	}
