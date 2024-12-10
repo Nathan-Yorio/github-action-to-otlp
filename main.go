@@ -14,6 +14,7 @@ import (
 	"github.com/lightstep/otel-launcher-go/pipelines"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 	"go.opentelemetry.io/otel/trace"
@@ -73,16 +74,32 @@ func getSteps(ctx context.Context, conf actionConfig) error {
 			// Data to include in a stepSpan
 			stepConclusion := step.GetConclusion()
 			stepStatus := step.GetStatus()
-			if stepConclusion != "success" {
+			if stepConclusion == "success" && step.CompletedAt != nil {
+				stepSpan.SetAttributes(attribute.String("step.Conclusion", stepConclusion))
+				stepSpan.SetAttributes(attribute.String("step.Status", stepStatus))
+				stepSpan.End(trace.WithTimestamp(step.CompletedAt.Time))
+				continue
+			}
+
+			if stepConclusion == "skipped" && step.CompletedAt != nil {
+				stepSpan.SetAttributes(attribute.String("step.Conclusion", stepConclusion))
+				stepSpan.SetAttributes(attribute.String("step.Status", stepStatus))
+				stepSpan.End(trace.WithTimestamp(step.CompletedAt.Time))
+				continue
+			}
+
+			if stepConclusion == "failure" && step.CompletedAt != nil {
 				stepSpan.SetAttributes(attribute.String("step.Conclusion", stepConclusion))
 				stepSpan.SetAttributes(attribute.String("step.Status", stepStatus))
 				stepSpan.RecordError(fmt.Errorf("step did not succeed. Conclusion: %s, Status: %s", stepConclusion, stepStatus))
+				stepSpan.SetStatus(codes.Error, "Step Failure")
+				stepSpan.End(trace.WithTimestamp(step.CompletedAt.Time))
+				continue
 			}
 
-			if step.CompletedAt != nil {
-				stepSpan.End(trace.WithTimestamp(step.CompletedAt.Time))
-			} else {
+			if step.CompletedAt == nil {
 				stepSpan.End()
+				continue
 			}
 		}
 
